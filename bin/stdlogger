@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+import re
+import sys
+from optparse import OptionParser
+sys.path.append('./lib')
+from stdlogger.main import StdLogger
+
+INVALID_OUTPUT_PARAMETER = "Invalid output parameter. See help."
+
+p = OptionParser()
+
+# output option
+o_help="""
+Log destination. [default: %default]
+"""
+p.add_option("-o", "--output", help=o_help,  dest="output",
+                default="stdout://")
+
+(options, args) = p.parse_args()
+
+# parse output option. Very similar to urlparse.
+m = re.search('(?P<schema>[a-z]+://).*', options.output)
+if m == None:
+    print(INVALID_OUTPUT_PARAMETER)
+    sys.exit(1)
+
+schema = m.group('schema')
+
+if schema == 'stdout://':
+    logger = StdLogger(kind='stdout')
+
+elif schema == 'file://':
+    # FIXME: Fix regex for <filename> part.
+    m = re.search('(?P<schema>[a-z]+://)(?P<filename>[a-z0-9A-Z.-/_]+)?(?P<params>.*)', options.output)
+    if m == None:
+        print(INVALID_OUTPUT_PARAMETER)
+        sys.exit(1)
+
+    filename = m.group('filename')
+    r_params = m.group('params') # raw params
+
+    print(filename)
+    print(r_params)
+
+    # parse raw params
+    params = dict([part.split('=') for part in r_params.split('&')])
+    logger = StdLogger(kind='file', filename=filename, **params)
+
+elif schema == 'syslog://':
+    pass
+else:
+    print(INVALID_OUTPUT_PARAMETER)
+    sys.exit(1)
+
+try:
+    logger.run()
+except KeyboardInterrupt:
+    print("Exiting...")

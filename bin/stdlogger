@@ -43,9 +43,6 @@ elif schema == 'file://':
     filename = m.group('filename')
     r_params = m.group('params') # raw params
 
-    print(filename)
-    print(r_params)
-
     # parse raw params
     params = dict(part.split('=') for part in r_params.split('&'))
     logger = StdLogger(kind='file', filename=filename, **params)

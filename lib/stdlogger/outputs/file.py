@@ -13,7 +13,6 @@ class Output(object):
     """
 
     def __init__(self, **kwargs):
-        print("[DEBUG] : %s" % str(kwargs))
         # set filename
         if 'filename' not in kwargs:
             raise ValueError("param 'filename' is required")

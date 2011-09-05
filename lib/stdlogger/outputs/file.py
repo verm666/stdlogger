@@ -4,6 +4,7 @@
 
 from __future__ import print_function
 import os
+import time
 
 class Output(object):
 
@@ -34,26 +35,40 @@ class Output(object):
         else:
             self.count = int(kwargs['count'])
 
-    def __rotate__(self):
+        # set current date (used in 'date-based' and 'date-size-based' rotation.
+        # see self.__rotate__()
+        self.r_date = int(time.strftime("%Y%m%d")) # "run date"
+
+    def __rotate__(self, kind='date'):
         """
-        Size based and date based rotation
+        Size-based, date-based or both rotation
         """
 
-        # Size based rotation
-        size = os.path.getsize(self.filename)
-        if size >= self.max_size:
-            for i in range(self.count - 1, 0, -1):
-                try:
-                    os.rename(self.filename + "." + str(i), self.filename + "." + str(i + 1))
-                except OSError:
-                    pass
+        if kind == "size":
+        # Size-based rotation
+            size = os.path.getsize(self.filename)
+            if size >= self.max_size:
+                for i in range(self.count - 1, 0, -1):
+                    try:
+                        os.rename(self.filename + "." + str(i), self.filename + "." + str(i + 1))
+                    except OSError:
+                        pass
 
-            os.rename(self.filename, self.filename + ".1")
-            self.file.close()
-            self.file = open(self.filename, 'a')
+                os.rename(self.filename, self.filename + ".1")
+                self.file.close()
+                self.file = open(self.filename, 'a')
 
-        # Data based rotation
-        # TODO: Do it.
+        elif kind == "date":
+            # Date-based rotation
+            c_date = int(time.strftime("%Y%m%d")) # "current date"
+            if (self.r_date != c_date):
+                os.rename(self.filename, self.filename + "." + str(c_date))
+                self.file.close()
+                self.file = open(self.filename, 'a')
+                self.r_date = c_date
+
+        elif kind == "date_size":
+            pass
 
     def processing(self, line):
         """

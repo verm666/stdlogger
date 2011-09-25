@@ -49,6 +49,8 @@ elif schema == 'file://':
 
 elif schema == 'syslog://':
     pass
+elif schema == 'gelf://':
+    logger = StdLogger(lind='gelf')
 else:
     print(INVALID_OUTPUT_PARAMETER)
     sys.exit(1)
@@ -56,4 +58,4 @@ else:
 try:
     logger.run()
 except KeyboardInterrupt:
-    print("Exiting...")
+    print("Exiting...", end="\n\n")

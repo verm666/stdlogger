@@ -3,6 +3,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from threading import Thread
 import os
 import time
 
@@ -28,11 +29,17 @@ class Output(object):
         else:
             self.max_size = int(kwargs['max_size'])
 
-        # set count
+        # set count (integer index. For example: access.log.1)
         if 'count' not in kwargs:
             self.count = 10
         else:
             self.count = int(kwargs['count'])
+
+        # set max_days (date index. For example: access.log.20110905)
+        if 'max_days' not in kwargs:
+            self.max_days = 10
+        else:
+            self.max_days = int(kwargs['max_days'])
 
         # set current date (used in 'date-based' and 'date-size-based' rotation.
         # see self.__rotate__()
@@ -44,9 +51,9 @@ class Output(object):
         """
 
         if kind == "size":
-        # Size-based rotation
+            # Size-based rotation
             size = os.path.getsize(self.filename)
-            if size >= self.max_size:
+            if (size >= self.max_size):
                 for i in range(self.count - 1, 0, -1):
                     try:
                         os.rename(self.filename + "." + str(i), self.filename + "." + str(i + 1))
@@ -57,6 +64,7 @@ class Output(object):
                 self.file.close()
                 self.file = open(self.filename, 'a')
 
+
         elif kind == "date":
             # Date-based rotation
             c_date = int(time.strftime("%Y%m%d")) # "current date"
@@ -65,6 +73,9 @@ class Output(object):
                 self.file.close()
                 self.file = open(self.filename, 'a')
                 self.r_date = c_date
+
+                t = Thread(tarage=self.__care_old_files__, args=())
+                t.start()
 
         elif kind == "date_size":
             pass

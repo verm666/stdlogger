@@ -71,3 +71,6 @@ def main():
         logger.run()
     except KeyboardInterrupt:
         print("Exiting...", end="\n\n")
+
+if __name__ == '__main__':
+    main()

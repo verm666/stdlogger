@@ -1,3 +1,10 @@
+stdlogger (1.0.2) stable; urgency=low
+
+  * Fix: Remove buffering from gelf output
+  * Fix: Passing params to output.gelf
+
+ -- Eduard Snesarev <verm666@gmail.com>  Tue, 27 Sep 2011 00:23:57 +0400
+
 stdlogger (1.0.1) stable; urgency=low
 
   * Bump version

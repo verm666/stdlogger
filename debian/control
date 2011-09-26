@@ -2,7 +2,7 @@ Source: stdlogger
 Section: admin
 Priority: optional
 Maintainer: Eduard Snesarev <verm666@gmail.com>
-Build-Depends: debhelper (>= 7), cdbs
+Build-Depends: debhelper (>= 7), cdbs, python-support
 Standards-Version: 3.8.4
 Homepage: https://github.com/verm666/stdlogger
 Vcs-Browser: https://github.com/verm666/stdlogger

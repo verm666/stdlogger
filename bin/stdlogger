@@ -57,12 +57,12 @@ def main():
             sys.exit(1)
 
         graylog_server = m.group('graylog_server')
-        graylog_port = m.group('graylog_port')
+        graylog_port = int(m.group('graylog_port'))
         r_params = m.group('params') # raw params
 
         # parse raw params
         params = dict(part.split('=') for part in r_params.split('&'))
-        logger = StdLogger(kind='gelf', **params)
+        logger = StdLogger(kind='gelf', graylog_server=graylog_server, graylog_port=graylog_port, **params)
     else:
         print(INVALID_OUTPUT_PARAMETER)
         sys.exit(1)

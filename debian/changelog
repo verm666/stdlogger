@@ -1,3 +1,9 @@
+stdlogger (1.0.1) stable; urgency=low
+
+  * Bump version
+
+ -- Eduard Snesarev <verm666@gmail.com>  Mon, 26 Sep 2011 20:36:56 +0400
+
 stdlogger (1.0.0) stable; urgency=low
 
   * Initial commit

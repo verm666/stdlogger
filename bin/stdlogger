@@ -6,56 +6,68 @@ from __future__ import print_function
 import re
 import sys
 from optparse import OptionParser
-sys.path.append('./lib')
 from stdlogger.main import StdLogger
 
-INVALID_OUTPUT_PARAMETER = "Invalid output parameter. See help."
+def main():
+    INVALID_OUTPUT_PARAMETER = "Invalid output parameter. See help."
 
-p = OptionParser()
+    p = OptionParser()
 
-# output option
-o_help="""
-Log destination. [default: %default]
-"""
-p.add_option("-o", "--output", help=o_help,  dest="output",
-                default="stdout://")
+    # output option
+    o_help="""
+    Log destination. [default: %default]
+    """
+    p.add_option("-o", "--output", help=o_help,  dest="output",
+                    default="stdout://")
 
-(options, args) = p.parse_args()
+    (options, args) = p.parse_args()
 
-# parse output option. Very similar to urlparse.
-m = re.search('(?P<schema>[a-z]+://).*', options.output)
-if m == None:
-    print(INVALID_OUTPUT_PARAMETER)
-    sys.exit(1)
-
-schema = m.group('schema')
-
-if schema == 'stdout://':
-    logger = StdLogger(kind='stdout')
-
-elif schema == 'file://':
-    # FIXME: Fix regex for <filename> part.
-    m = re.search('(?P<schema>[a-z]+://)(?P<filename>[a-z0-9A-Z.-/_]+)?(?P<params>.*)', options.output)
-    if m == None:
+    # parse output option. Very similar to urlparse.
+    m = re.search('(?P<schema>[a-z]+://).*', options.output)
+    if m is None:
         print(INVALID_OUTPUT_PARAMETER)
         sys.exit(1)
 
-    filename = m.group('filename')
-    r_params = m.group('params') # raw params
+    schema = m.group('schema')
 
-    # parse raw params
-    params = dict(part.split('=') for part in r_params.split('&'))
-    logger = StdLogger(kind='file', filename=filename, **params)
+    if schema == 'stdout://':
+        logger = StdLogger(kind='stdout')
 
-elif schema == 'syslog://':
-    pass
-elif schema == 'gelf://':
-    logger = StdLogger(lind='gelf')
-else:
-    print(INVALID_OUTPUT_PARAMETER)
-    sys.exit(1)
+    elif schema == 'file://':
+        # FIXME: Fix regex for <filename> part.
+        m = re.search('(?P<schema>[a-z]+://)(?P<filename>[a-z0-9A-Z.-/_]+)?(?P<params>.*)', options.output)
+        if m is None:
+            print(INVALID_OUTPUT_PARAMETER)
+            sys.exit(1)
 
-try:
-    logger.run()
-except KeyboardInterrupt:
-    print("Exiting...", end="\n\n")
+        filename = m.group('filename')
+        r_params = m.group('params') # raw params
+
+        # parse raw params
+        params = dict(part.split('=') for part in r_params.split('&'))
+        logger = StdLogger(kind='file', filename=filename, **params)
+
+    elif schema == 'syslog://':
+        pass
+    elif schema == 'gelf://':
+        # gelf://graylog_server:graylog_port?host=hostname
+        m = re.search('(?P<schema>gelf://)(?P<graylog_server>[0-9a-zA-Z.-_]+):(?P<graylog_port>[0-9]+)\?(?P<params>.*)', options.output)
+        if m is None:
+            print(INVALID_OUTPUT_PARAMETER)
+            sys.exit(1)
+
+        graylog_server = m.group('graylog_server')
+        graylog_port = m.group('graylog_port')
+        r_params = m.group('params') # raw params
+
+        # parse raw params
+        params = dict(part.split('=') for part in r_params.split('&'))
+        logger = StdLogger(kind='gelf', **params)
+    else:
+        print(INVALID_OUTPUT_PARAMETER)
+        sys.exit(1)
+
+    try:
+        logger.run()
+    except KeyboardInterrupt:
+        print("Exiting...", end="\n\n")

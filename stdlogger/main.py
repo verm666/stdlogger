@@ -10,7 +10,7 @@ import os
 
 class StdLogger(object):
     def __init__(self, kind='stdout', **kwargs):
-        m = __import__('outputs.' + kind, globals(), locals(), ['Output'], -1)
+        m = __import__('stdlogger.outputs.' + kind, globals(), locals(), ['Output'], -1)
         self.output = m.Output(**kwargs)
         self.q = Queue() # TODO: Think about limits (In MBs)
         self.porter = Thread(target=self.processing, args=())
@@ -18,9 +18,10 @@ class StdLogger(object):
         self.porter.start()
 
     def run(self):
-        for line in sys.stdin:
-            print("READ FROM STDIN: %s" % line)
+        line = sys.stdin.readline()
+        while line:
             self.q.put(line)
+            line = sys.stdin.readline()
 
     def processing(self):
         while True:

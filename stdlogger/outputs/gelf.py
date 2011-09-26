@@ -10,7 +10,7 @@ class Output(object):
     Class to redirect logs from stdout to graylog2 server
     """
 
-    def __init__(self, graylog_server='127.0.0.1', graylog_port=12011,
+    def __init__(self, graylog_server='127.0.0.1', graylog_port=12201,
                         level=1, facility='local1',
                         max_buffer_size=1400,
                         host=getfqdn(gethostname())):
@@ -26,16 +26,10 @@ class Output(object):
         self.facility = facility
 
         self.socket = socket(AF_INET,SOCK_DGRAM)
-        self.buf = StringIO()
-        self.max_buffer_size = max_buffer_size
 
     def send(self, message):
         z = zlib.compress(json.dumps(message))
-        self.buf.write(z)
-        print("Current buffer size: %i" % self.buf.len)
-        if self.buf.len >= self.max_buffer_size:
-            self.socket.sendto(self.buf.getvalue(),(self.graylog_server,self.graylog_port))
-            self.buf.truncate(0)
+        self.socket.sendto(z, (self.graylog_server,self.graylog_port))
 
     def processing(self, line):
         """
